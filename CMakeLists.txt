@@ -8,16 +8,19 @@ set(INCLUDE_DIR include)
 
 set(TESTS_DIR test)
 
+set(TESTS_LIST	${TESTS_DIR}/command_collector_tests.cpp
+	)
+
 set(SRC_DIR src)
 
-set(SRC_LIST	${SRC_DIR}
+set(SRC_LIST	${SRC_DIR}/main.cpp
    )
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-#add_executable(bulkmt ${SRC_DIR}/ip_filter.cpp ${SRC_LIST})
+add_executable(bulkmt ${SRC_LIST})
 
-#add_executable(ip_filter_tests ${TESTS_DIR}/ip_filter_tests.cpp ${SRC_LIST})
+add_executable(bulkmt_tests ${TESTS_LIST} ${SRC_DIR}/command_collector.cpp)
 
 set_target_properties(bulkmt bulkmt_tests PROPERTIES
 	CXX_STANDARD 14
