@@ -1,0 +1,1 @@
+using Bulk = std::vector<std::string>;
