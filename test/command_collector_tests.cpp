@@ -2,6 +2,25 @@
 
 #include <boost/test/unit_test.hpp>
 #include "command_collector.h"
+#include "ibulk_updater.h"
+#include <algorithm>
+#include <iostream>
+
+class TestListener : public iBulkUpdater {
+public:
+	Bulk actualBulk;
+
+	TestListener(CommandCollector *cc) {
+		cc->subscribe(this);
+	}
+
+	void update(const Bulk &receivedBulk) override {
+		actualBulk.clear();
+		actualBulk.reserve(receivedBulk.size());
+		std::copy(receivedBulk.cbegin(), receivedBulk.cend(), actualBulk.begin());
+	}	
+};
+
 
 BOOST_AUTO_TEST_SUITE(command_collector)
 
@@ -36,18 +55,19 @@ BOOST_AUTO_TEST_CASE(BlockSizeEqualsOne_OneCmdCaptured_OneBlockCreated)
 
 BOOST_AUTO_TEST_CASE(BlockCreated_WhenCommandQuantityEquals_N)
 {
-	int blockSize = 3;
-	CommandCollector cmdClctr(blockSize);
+	CommandCollector cmdClctr(3);
+	TestListener tl(&cmdClctr);
 
 	cmdClctr.captureCommand("cmd1");
-	BOOST_CHECK_EQUAL(0, cmdClctr.getBlocksQuantity());
-
 	cmdClctr.captureCommand("cmd2");
-	BOOST_CHECK_EQUAL(0, cmdClctr.getBlocksQuantity());
+	cmdClctr.captureCommand("cmd3");
 
-	cmdClctr.captureCommand(EOF);
+	BOOST_CHECK(false == tl.actualBulk.empty());
 
-	BOOST_CHECK_EQUAL(1, cmdClctr.getBlocksQuantity());
+	for(auto i : tl.actualBulk) {
+		std::cout << "e" << std::endl;
+	}
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

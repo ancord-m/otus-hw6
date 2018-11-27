@@ -4,15 +4,25 @@
 
 void CommandCollector::captureCommand(std::string command)
 {
-	std::cout << command << std::endl;
+	currentBulk.push_back(command);
+
+	if(currentBulk.size() == commandBlockSize) notify();
 }
 
-void CommandCollector::captureCommand(int command)
-{
-	std::cout << command << std::endl;
-}
 
 int CommandCollector::getBlocksQuantity(void)
 {
 	return 1;
+}
+
+void CommandCollector::subscribe(iBulkUpdater *listener)
+{
+	listeners.push_back(listener);
+}
+
+void CommandCollector::notify(void)
+{
+	for(auto l : listeners) {
+		l->update(currentBulk);
+	}
 }
