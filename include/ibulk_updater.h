@@ -6,6 +6,7 @@
 class iBulkUpdater {
 public:
 	virtual void update(const Bulk &) = 0;
+	virtual ~iBulkUpdater() {};
 };
 
 #endif

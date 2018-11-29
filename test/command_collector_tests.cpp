@@ -16,11 +16,45 @@ public:
 
 	void update(const Bulk &receivedBulk) override {
 		actualBulk.clear();
-		actualBulk.reserve(receivedBulk.size());
-		std::copy(receivedBulk.cbegin(), receivedBulk.cend(), actualBulk.begin());
+		std::copy(receivedBulk.cbegin(), receivedBulk.cend(), std::back_inserter(actualBulk));
 	}	
 };
 
+class TestHelper
+{
+	static bool wasExpectedBulkCleared;
+	
+	public:
+
+		static Bulk expectedBulk;
+
+		static void compareExpectedWithActual(const Bulk &actualBulk)
+		{
+			BOOST_CHECK( 
+				true == std::equal(expectedBulk.begin(), expectedBulk.end(),
+				    			   actualBulk.begin(), actualBulk.end())
+			);
+		}
+
+		static void prepareExpectedBulk() { wasExpectedBulkCleared = false; };
+
+		template<typename T, typename... Args>
+		static void prepareExpectedBulk(T command, Args... args)
+		{
+			if(!wasExpectedBulkCleared) 
+			{
+				expectedBulk.clear();
+				wasExpectedBulkCleared = true;
+			}
+
+			expectedBulk.push_back(command);
+			prepareExpectedBulk(args...);
+		}
+};
+
+Bulk TestHelper::expectedBulk;
+
+bool TestHelper::wasExpectedBulkCleared = true;
 
 BOOST_AUTO_TEST_SUITE(command_collector)
 
@@ -55,19 +89,34 @@ BOOST_AUTO_TEST_CASE(BlockSizeEqualsOne_OneCmdCaptured_OneBlockCreated)
 
 BOOST_AUTO_TEST_CASE(BlockCreated_WhenCommandQuantityEquals_N)
 {
-	CommandCollector cmdClctr(3);
+	int N = 3;
+	CommandCollector cmdClctr(N);
+	TestListener tl(&cmdClctr);
+
+	TestHelper::prepareExpectedBulk("cmd1", "cmd2", "cmd3");
+
+	for(auto cmd : TestHelper::expectedBulk)
+	{
+		cmdClctr.captureCommand(cmd);
+	}
+
+	TestHelper::compareExpectedWithActual(tl.actualBulk);
+
+
+	//BOOST_CHECK(false == tl.actualBulk.empty());
+
+}
+
+BOOST_AUTO_TEST_CASE(BlockNotCreated_CommandQuantityLessThan_N)
+{
+	int N = 3;
+	CommandCollector cmdClctr(N);
 	TestListener tl(&cmdClctr);
 
 	cmdClctr.captureCommand("cmd1");
 	cmdClctr.captureCommand("cmd2");
-	cmdClctr.captureCommand("cmd3");
-
-	BOOST_CHECK(false == tl.actualBulk.empty());
-
-	for(auto i : tl.actualBulk) {
-		std::cout << "e" << std::endl;
-	}
-
+	
+	BOOST_CHECK(true == tl.actualBulk.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
