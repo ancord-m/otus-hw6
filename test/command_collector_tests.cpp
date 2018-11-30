@@ -150,4 +150,24 @@ BOOST_AUTO_TEST_CASE(BlockNotCreated_CommandQuantityLessThan_N)
 	BOOST_CHECK(true == tl.actualBulk.empty());
 }
 
+BOOST_AUTO_TEST_CASE(CommandsInsideCurlyBraces_N_limitIgnored)
+{
+	int N = 3;
+
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
+
+	TestHelper::prepareCommandSequenceToBeSent(
+		"{", "cmd1", "cmd2", "cmd3", "cmd4", "cmd5", "}"
+	);
+	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk(
+		"cmd1", "cmd2", "cmd3", "cmd4", "cmd5"
+	);
+
+	TestHelper::performCommandCaptureBy(commandCollector);
+
+	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
+	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

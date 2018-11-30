@@ -4,7 +4,10 @@
 
 void CommandCollector::captureCommand(std::string command)
 {
-	currentBulk.push_back(command);
+	if(0 != command.compare("{")) //&& 0 != command.compare("}"))
+	{
+		currentBulk.push_back(command);
+	}	
 
 	if(currentBulk.size() == commandBlockSize) notify();
 }
