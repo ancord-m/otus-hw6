@@ -23,12 +23,21 @@ public:
 class TestHelper
 {
 	static bool wasExpectedBulkCleared;
+
+	static bool wasCommandSequenceCleared;
 	
 	public:
 
 		static Bulk expectedBulk;
 
-		static void compareExpectedWithActual(const Bulk &actualBulk)
+		static Bulk commandSequence;
+
+		static void mustActualBulkBeEmpty(bool value, const Bulk &actualBulk)
+		{
+			BOOST_CHECK(value == actualBulk.empty());
+		}
+
+		static void compareExpectedAndActualBulks(const Bulk &actualBulk)
 		{
 			BOOST_CHECK( 
 				true == std::equal(expectedBulk.begin(), expectedBulk.end(),
@@ -36,10 +45,26 @@ class TestHelper
 			);
 		}
 
-		static void prepareExpectedBulk() { wasExpectedBulkCleared = false; };
+
+		static void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
 
 		template<typename T, typename... Args>
-		static void prepareExpectedBulk(T command, Args... args)
+		static void prepareCommandSequenceToBeSent(T command, Args... args)
+		{
+			if(!wasCommandSequenceCleared)
+			{
+				commandSequence.clear();
+				wasCommandSequenceCleared = true;
+			}
+
+			commandSequence.push_back(command);
+			prepareCommandSequenceToBeSent(args...);
+		}
+
+		static void prepareExpectedCommandsToBeCapturedIntoBulk() { wasExpectedBulkCleared = false; };
+
+		template<typename T, typename... Args>
+		static void prepareExpectedCommandsToBeCapturedIntoBulk(T command, Args... args)
 		{
 			if(!wasExpectedBulkCleared) 
 			{
@@ -48,36 +73,32 @@ class TestHelper
 			}
 
 			expectedBulk.push_back(command);
-			prepareExpectedBulk(args...);
+			prepareExpectedCommandsToBeCapturedIntoBulk(args...);
+		}
+
+		static void performCommandCaptureBy(CommandCollector &commandCollector)
+		{
+			for(auto cmd : commandSequence)
+			{
+				commandCollector.captureCommand(cmd);
+			}
 		}
 };
 
 Bulk TestHelper::expectedBulk;
 
+Bulk TestHelper::commandSequence;
+
 bool TestHelper::wasExpectedBulkCleared = true;
+
+bool TestHelper::wasCommandSequenceCleared = true;
 
 BOOST_AUTO_TEST_SUITE(command_collector)
 
-BOOST_AUTO_TEST_CASE(BlockSizeEqualsOne_OneCmdCaptured_OneBlockCreated)
-{
-	int blockSize = 1;
-	CommandCollector cmdClctr(blockSize);
-
-	cmdClctr.captureCommand("commmand");
-
-	BOOST_CHECK_EQUAL(1, cmdClctr.getBlocksQuantity());
-	/*
-	1. выставить размер блока
-	2. подготовить новый блок
-	2. собрать команды
-	3. завершить блок
-	*/	
-}
-
 /*
 тесты:
-- блок завершается при достижении N
-- блок завершается при EOF сигнале
++ блок завершается при достижении N
+? блок завершается при EOF сигнале
 - если получен {, то N игнорируется, данные собираюся до }
 - предыдущий блок завершается при получении  первого { и поступающие данные складываются в новый блок
 - блок завершается при получении }
@@ -90,21 +111,31 @@ BOOST_AUTO_TEST_CASE(BlockSizeEqualsOne_OneCmdCaptured_OneBlockCreated)
 BOOST_AUTO_TEST_CASE(BlockCreated_WhenCommandQuantityEquals_N)
 {
 	int N = 3;
-	CommandCollector cmdClctr(N);
-	TestListener tl(&cmdClctr);
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
 
-	TestHelper::prepareExpectedBulk("cmd1", "cmd2", "cmd3");
+	TestHelper::prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3");
+	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
 
-	for(auto cmd : TestHelper::expectedBulk)
-	{
-		cmdClctr.captureCommand(cmd);
-	}
+	TestHelper::performCommandCaptureBy(commandCollector);	
 
-	TestHelper::compareExpectedWithActual(tl.actualBulk);
+	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
+	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
+}
 
+BOOST_AUTO_TEST_CASE(N_commandsCaptured_N_plus_one_was_ignored)
+{
+	int N = 3;
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
 
-	//BOOST_CHECK(false == tl.actualBulk.empty());
+	TestHelper::prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3", "cmd4");
+	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
 
+	TestHelper::performCommandCaptureBy(commandCollector);
+
+	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
+	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
 }
 
 BOOST_AUTO_TEST_CASE(BlockNotCreated_CommandQuantityLessThan_N)

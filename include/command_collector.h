@@ -15,9 +15,6 @@ public:
    ~CommandCollector() = default;	
 
 	void captureCommand(std::string command);
-
-	int getBlocksQuantity(void);
-
 	void subscribe(iBulkUpdater *listener);
 	void notify(void);
 };
