@@ -7,14 +7,28 @@
 class CommandCollector
 {
 	int commandBlockSize;
-	Bulk currentBulk;
+	
 	std::vector<iBulkUpdater *> listeners;
+	int braceCounter;
+	bool formingCurrentBulkDynamicly;
+
+	bool isThisOpenningCurlyBrace(String &command);
+	bool isThisClosingCurlyBrace(String &command);
+	void storeCommandIntoCurrentBulk(String command);
+	void openCurlyBrace(void);
+	void closeCurlyBrace(void);
+	void bulkFormedDynamicly(bool);
+	bool doesBulkFormedDynamicly(void);
+	void notify_IfAllCurlyBracesAreClosed(void);
+	void notify_IfCommandBlockSizeIsReached(void);
+
 
 public:
-	CommandCollector(int bs) : commandBlockSize(bs) { currentBulk.reserve(100); };
+	CommandCollector(int bs) : commandBlockSize(bs), braceCounter(0) { currentBulk.reserve(100); };
    ~CommandCollector() = default;	
 
 	void captureCommand(std::string command);
 	void subscribe(iBulkUpdater *listener);
 	void notify(void);
+	Bulk currentBulk;
 };

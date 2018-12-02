@@ -166,6 +166,8 @@ BOOST_AUTO_TEST_CASE(CommandsInsideCurlyBraces_N_limitIgnored)
 
 	TestHelper::performCommandCaptureBy(commandCollector);
 
+
+
 	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
 	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
 }
