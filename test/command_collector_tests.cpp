@@ -104,9 +104,9 @@ BOOST_FIXTURE_TEST_SUITE(command_collector, TestHelper)
 + если получен {, то N игнорируется, данные собираюся до }
 - предыдущий блок завершается при получении  первого { и поступающие данные складываются в новый блок
 - блок завершается при получении }
-- если блок начали с {, то второе открытие { не закрывает блок
-- аналогично, блок закончится тогда, когда встретится ровно столько }, сколько {
-- если данные закончились до }, то блок игнорируется
++ если блок начали с {, то второе открытие { не закрывает блок
++ аналогично, блок закончится тогда, когда встретится ровно столько }, сколько {
++ если данные закончились до }, то блок игнорируется
 
 */
 
@@ -183,6 +183,59 @@ BOOST_AUTO_TEST_CASE(CommandsSurroundedBySeveralPairsOfCurlyBraces_OnlyFirstAndL
 	);
 	prepareExpectedCommandsToBeCapturedIntoBulk(
 		"cmd1", "cmd2", "cmd3", "cmd4", "cmd5"
+	);
+
+	performCommandCaptureBy(commandCollector);
+
+	mustActualBulkBeEmpty(false, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
+}
+
+
+BOOST_AUTO_TEST_CASE(CommandsFinishedBeforeLastClosingCurlyBrace_BulkIsEmpty)
+{
+	int N = 3;
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
+
+	prepareCommandSequenceToBeSent(
+		"{", "cmd1", "cmd2", "{", "cmd3", "{", "}", "cmd4", "cmd5", "}"
+	);
+
+	performCommandCaptureBy(commandCollector);
+
+	mustActualBulkBeEmpty(true, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
+}
+
+BOOST_AUTO_TEST_CASE(CommandsFinishedBeforeClosingCurlyBrace_BulkIsEmpty)
+{
+	int N = 3;
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
+
+	prepareCommandSequenceToBeSent(
+		"{", "cmd1", "cmd2", "cmd3", "cmd4", "cmd5"
+	);
+
+	performCommandCaptureBy(commandCollector);
+
+	mustActualBulkBeEmpty(true, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
+}
+
+BOOST_AUTO_TEST_CASE(PreviousBulkWasFinishedForcibly_AtFirstOpeningCurlyBrace)
+{
+	int N = 5;
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
+
+	prepareCommandSequenceToBeSent(
+		"cmd1", "cmd2", "cmd3", "{", "cmd4", "cmd5"
+	);
+
+	prepareExpectedCommandsToBeCapturedIntoBulk(
+		"cmd1", "cmd2", "cmd3"
 	);
 
 	performCommandCaptureBy(commandCollector);

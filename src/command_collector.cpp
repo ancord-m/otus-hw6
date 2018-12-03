@@ -6,6 +6,11 @@ void CommandCollector::captureCommand(std::string command)
 {
 	if(isThisOpenningCurlyBrace(command))
 	{
+		if(!isCurrentBulkEmpty() && !doesBulkFormedDynamicly())
+		{
+			notify_ForciblyTerminateCollectionAndNotify();
+		}
+
 		openCurlyBrace();
 		bulkFormedDynamicly(true);
 	}
@@ -91,4 +96,14 @@ void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 	{
 		notify();	
 	}
+}
+
+bool CommandCollector::isCurrentBulkEmpty(void)
+{
+	return currentBulk.empty();
+}
+
+void CommandCollector::notify_ForciblyTerminateCollectionAndNotify(void)
+{
+	notify();
 }

@@ -21,7 +21,8 @@ class CommandCollector
 	bool doesBulkFormedDynamicly(void);
 	void notify_IfAllCurlyBracesAreClosed(void);
 	void notify_IfCommandBlockSizeIsReached(void);
-
+	bool isCurrentBulkEmpty(void);
+	void notify_ForciblyTerminateCollectionAndNotify(void);
 
 public:
 	CommandCollector(int bs) :
