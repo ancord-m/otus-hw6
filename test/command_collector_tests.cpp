@@ -10,11 +10,13 @@ class TestListener : public iBulkUpdater {
 public:
 	Bulk actualBulk;
 
-	TestListener(CommandCollector *cc) {
+	TestListener(CommandCollector *cc)
+	{
 		cc->subscribe(this);
 	}
 
-	void update(const Bulk &receivedBulk) override {
+	void update(const Bulk &receivedBulk) override
+	{
 		actualBulk.clear();
 		std::copy(receivedBulk.cbegin(), receivedBulk.cend(), std::back_inserter(actualBulk));
 	}	
@@ -102,8 +104,8 @@ BOOST_FIXTURE_TEST_SUITE(command_collector, TestHelper)
 + блок завершается при достижении N
 ? блок завершается при EOF сигнале
 + если получен {, то N игнорируется, данные собираюся до }
-- предыдущий блок завершается при получении  первого { и поступающие данные складываются в новый блок
-- блок завершается при получении }
++ предыдущий блок завершается при получении  первого { и поступающие данные складываются в новый блок
++ блок завершается при получении }
 + если блок начали с {, то второе открытие { не закрывает блок
 + аналогично, блок закончится тогда, когда встретится ровно столько }, сколько {
 + если данные закончились до }, то блок игнорируется
@@ -231,11 +233,11 @@ BOOST_AUTO_TEST_CASE(PreviousBulkWasFinishedForcibly_AtFirstOpeningCurlyBrace)
 	TestListener tl(&commandCollector);
 
 	prepareCommandSequenceToBeSent(
-		"cmd1", "cmd2", "cmd3", "{", "cmd4", "cmd5"
+		"cmd1", "cmd2", "\n", "{", "cmd4", "cmd5"
 	);
 
 	prepareExpectedCommandsToBeCapturedIntoBulk(
-		"cmd1", "cmd2", "cmd3"
+		"cmd1", "cmd2", "\n"
 	);
 
 	performCommandCaptureBy(commandCollector);

@@ -1,3 +1,6 @@
+#ifndef COMMAND_COLLECTOR_H
+#define COMMAND_COLLECTOR_H
+
 #include <string>
 #include <vector>
 
@@ -36,7 +39,10 @@ public:
    ~CommandCollector() = default;	
 
 	void captureCommand(std::string command);
+	void tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk(void);
 	void subscribe(iBulkUpdater *listener);
 	void notify(void);
 	Bulk currentBulk;
 };
+
+#endif

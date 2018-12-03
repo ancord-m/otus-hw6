@@ -15,6 +15,7 @@ set(SRC_DIR src)
 
 set(SRC_LIST	${SRC_DIR}/main.cpp
 				${SRC_DIR}/command_collector.cpp
+				${SRC_DIR}/console_printer.cpp
    )
 
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)

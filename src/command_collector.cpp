@@ -6,10 +6,7 @@ void CommandCollector::captureCommand(std::string command)
 {
 	if(isThisOpenningCurlyBrace(command))
 	{
-		if(!isCurrentBulkEmpty() && !doesBulkFormedDynamicly())
-		{
-			notify_ForciblyTerminateCollectionAndNotify();
-		}
+		tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk();
 
 		openCurlyBrace();
 		bulkFormedDynamicly(true);
@@ -32,6 +29,14 @@ void CommandCollector::captureCommand(std::string command)
 	{
 		notify_IfCommandBlockSizeIsReached();
 	}		
+}
+
+void CommandCollector::tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk(void)
+{
+	if(!isCurrentBulkEmpty() && !doesBulkFormedDynamicly())
+	{
+		notify_ForciblyTerminateCollectionAndNotify();
+	}
 }
 
 void CommandCollector::subscribe(iBulkUpdater *listener)
