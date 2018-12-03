@@ -4,7 +4,6 @@
 
 void CommandCollector::captureCommand(std::string command)
 {
-	
 	if(isThisOpenningCurlyBrace(command))
 	{
 		openCurlyBrace();
@@ -54,7 +53,7 @@ bool CommandCollector::isThisClosingCurlyBrace(String &command)
 
 void CommandCollector::storeCommandIntoCurrentBulk(String command)
 {
-	currentBulk.push_back(command); //potential failire?
+	currentBulk.push_back(command);
 }
 
 void CommandCollector::openCurlyBrace(void)
@@ -79,8 +78,6 @@ bool CommandCollector::doesBulkFormedDynamicly(void)
 
 void CommandCollector::notify_IfAllCurlyBracesAreClosed(void)
 {
-	std::cout << braceCounter << std::endl;
-
 	if(0 == braceCounter)
 	{
 		bulkFormedDynamicly(false);
@@ -90,5 +87,8 @@ void CommandCollector::notify_IfAllCurlyBracesAreClosed(void)
 
 void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 {
-	if(currentBulk.size() == commandBlockSize) notify();
+	if(currentBulk.size() == commandBlockSize)
+	{
+		notify();	
+	}
 }

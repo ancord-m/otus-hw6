@@ -24,7 +24,14 @@ class CommandCollector
 
 
 public:
-	CommandCollector(int bs) : commandBlockSize(bs), braceCounter(0) { currentBulk.reserve(100); };
+	CommandCollector(int bs) :
+		commandBlockSize(bs),
+		braceCounter(0),
+		formingCurrentBulkDynamicly(false)
+	{ 
+		currentBulk.reserve(100); 
+	};
+
    ~CommandCollector() = default;	
 
 	void captureCommand(std::string command);

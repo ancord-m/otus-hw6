@@ -22,22 +22,33 @@ public:
 
 class TestHelper
 {
-	static bool wasExpectedBulkCleared;
+	bool wasExpectedBulkCleared;
 
-	static bool wasCommandSequenceCleared;
+	bool wasCommandSequenceCleared;
 	
 	public:
 
-		static Bulk expectedBulk;
+		TestHelper()
+		{
+			wasExpectedBulkCleared    = true;
+			wasCommandSequenceCleared = true;			
+		}
 
-		static Bulk commandSequence;
+	   ~TestHelper()
+	    {
 
-		static void mustActualBulkBeEmpty(bool value, const Bulk &actualBulk)
+	    }	
+
+		Bulk expectedBulk;
+
+		Bulk commandSequence;
+
+		void mustActualBulkBeEmpty(bool value, const Bulk &actualBulk)
 		{
 			BOOST_CHECK(value == actualBulk.empty());
 		}
 
-		static void compareExpectedAndActualBulks(const Bulk &actualBulk)
+		void compareExpectedAndActualBulks(const Bulk &actualBulk)
 		{
 			BOOST_CHECK( 
 				true == std::equal(expectedBulk.begin(), expectedBulk.end(),
@@ -45,11 +56,10 @@ class TestHelper
 			);
 		}
 
-
-		static void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
+		void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
 
 		template<typename T, typename... Args>
-		static void prepareCommandSequenceToBeSent(T command, Args... args)
+		void prepareCommandSequenceToBeSent(T command, Args... args)
 		{
 			if(!wasCommandSequenceCleared)
 			{
@@ -61,10 +71,10 @@ class TestHelper
 			prepareCommandSequenceToBeSent(args...);
 		}
 
-		static void prepareExpectedCommandsToBeCapturedIntoBulk() { wasExpectedBulkCleared = false; };
+		void prepareExpectedCommandsToBeCapturedIntoBulk() { wasExpectedBulkCleared = false; };
 
 		template<typename T, typename... Args>
-		static void prepareExpectedCommandsToBeCapturedIntoBulk(T command, Args... args)
+		void prepareExpectedCommandsToBeCapturedIntoBulk(T command, Args... args)
 		{
 			if(!wasExpectedBulkCleared) 
 			{
@@ -76,7 +86,7 @@ class TestHelper
 			prepareExpectedCommandsToBeCapturedIntoBulk(args...);
 		}
 
-		static void performCommandCaptureBy(CommandCollector &commandCollector)
+		void performCommandCaptureBy(CommandCollector &commandCollector)
 		{
 			for(auto cmd : commandSequence)
 			{
@@ -85,21 +95,13 @@ class TestHelper
 		}
 };
 
-Bulk TestHelper::expectedBulk;
-
-Bulk TestHelper::commandSequence;
-
-bool TestHelper::wasExpectedBulkCleared = true;
-
-bool TestHelper::wasCommandSequenceCleared = true;
-
-BOOST_AUTO_TEST_SUITE(command_collector)
+BOOST_FIXTURE_TEST_SUITE(command_collector, TestHelper)
 
 /*
 тесты:
 + блок завершается при достижении N
 ? блок завершается при EOF сигнале
-- если получен {, то N игнорируется, данные собираюся до }
++ если получен {, то N игнорируется, данные собираюся до }
 - предыдущий блок завершается при получении  первого { и поступающие данные складываются в новый блок
 - блок завершается при получении }
 - если блок начали с {, то второе открытие { не закрывает блок
@@ -114,13 +116,13 @@ BOOST_AUTO_TEST_CASE(BlockCreated_WhenCommandQuantityEquals_N)
 	CommandCollector commandCollector(N);
 	TestListener tl(&commandCollector);
 
-	TestHelper::prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3");
-	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
+	prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3");
+	prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
 
-	TestHelper::performCommandCaptureBy(commandCollector);	
+	performCommandCaptureBy(commandCollector);	
 
-	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
-	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
+	mustActualBulkBeEmpty(false, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
 }
 
 BOOST_AUTO_TEST_CASE(N_commandsCaptured_N_plus_one_was_ignored)
@@ -129,47 +131,64 @@ BOOST_AUTO_TEST_CASE(N_commandsCaptured_N_plus_one_was_ignored)
 	CommandCollector commandCollector(N);
 	TestListener tl(&commandCollector);
 
-	TestHelper::prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3", "cmd4");
-	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
+	prepareCommandSequenceToBeSent("cmd1", "cmd2", "cmd3", "cmd4");
+	prepareExpectedCommandsToBeCapturedIntoBulk("cmd1", "cmd2", "cmd3");
 
-	TestHelper::performCommandCaptureBy(commandCollector);
+	performCommandCaptureBy(commandCollector);
 
-	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
-	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
+	mustActualBulkBeEmpty(false, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
 }
 
 BOOST_AUTO_TEST_CASE(BlockNotCreated_CommandQuantityLessThan_N)
 {
 	int N = 3;
-	CommandCollector cmdClctr(N);
-	TestListener tl(&cmdClctr);
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
 
-	cmdClctr.captureCommand("cmd1");
-	cmdClctr.captureCommand("cmd2");
+	prepareCommandSequenceToBeSent("cmd1", "cmd2");
+
+	performCommandCaptureBy(commandCollector);
 	
-	BOOST_CHECK(true == tl.actualBulk.empty());
+	mustActualBulkBeEmpty(true, tl.actualBulk);
 }
 
 BOOST_AUTO_TEST_CASE(CommandsInsideCurlyBraces_N_limitIgnored)
 {
 	int N = 3;
-
 	CommandCollector commandCollector(N);
 	TestListener tl(&commandCollector);
 
-	TestHelper::prepareCommandSequenceToBeSent(
+	prepareCommandSequenceToBeSent(
 		"{", "cmd1", "cmd2", "cmd3", "cmd4", "cmd5", "}"
 	);
-	TestHelper::prepareExpectedCommandsToBeCapturedIntoBulk(
+	prepareExpectedCommandsToBeCapturedIntoBulk(
 		"cmd1", "cmd2", "cmd3", "cmd4", "cmd5"
 	);
 
-	TestHelper::performCommandCaptureBy(commandCollector);
+	performCommandCaptureBy(commandCollector);
 
+	mustActualBulkBeEmpty(false, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
+}
 
+BOOST_AUTO_TEST_CASE(CommandsSurroundedBySeveralPairsOfCurlyBraces_OnlyFirstAndLastMatters)
+{
+	int N = 3;
+	CommandCollector commandCollector(N);
+	TestListener tl(&commandCollector);
 
-	TestHelper::mustActualBulkBeEmpty(false, tl.actualBulk);
-	TestHelper::compareExpectedAndActualBulks(tl.actualBulk);
+	prepareCommandSequenceToBeSent(
+		"{", "cmd1", "cmd2", "{", "cmd3", "{", "}", "cmd4", "cmd5", "}", "}"
+	);
+	prepareExpectedCommandsToBeCapturedIntoBulk(
+		"cmd1", "cmd2", "cmd3", "cmd4", "cmd5"
+	);
+
+	performCommandCaptureBy(commandCollector);
+
+	mustActualBulkBeEmpty(false, tl.actualBulk);
+	compareExpectedAndActualBulks(tl.actualBulk);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
