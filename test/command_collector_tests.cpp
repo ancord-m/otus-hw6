@@ -92,7 +92,7 @@ class TestHelper
 		{
 			for(auto cmd : commandSequence)
 			{
-				commandCollector.captureCommand(cmd);
+				commandCollector.captureCommandAndPerformAnalysis(cmd);
 			}
 		}
 };

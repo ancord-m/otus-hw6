@@ -44,7 +44,7 @@ public:
 
    ~CommandCollector() = default;	
 
-	void captureCommand(std::string command);
+	void captureCommandAndPerformAnalysis(std::string command);
 	void tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk(void);
 	void subscribe(iBulkUpdater *listener);
 	void notify(void);

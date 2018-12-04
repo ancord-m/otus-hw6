@@ -2,7 +2,7 @@
 
 #include "command_collector.h"
 
-void CommandCollector::captureCommand(std::string command)
+void CommandCollector::captureCommandAndPerformAnalysis(std::string command)
 {
 	if(isThisOpenningCurlyBrace(command))
 	{
