@@ -20,7 +20,6 @@ void CommandCollector::captureCommand(std::string command)
 		storeCommandIntoCurrentBulk(command);
 	}
 
-
 	if(doesBulkFormedDynamicly())
 	{
 		notify_IfAllCurlyBracesAreClosed();
@@ -28,7 +27,13 @@ void CommandCollector::captureCommand(std::string command)
 	else
 	{
 		notify_IfCommandBlockSizeIsReached();
-	}		
+	}
+
+	if(wereListenersNotified())
+	{
+		prepareCurrentBulkForNewCommands();	
+		setListenersWereNotified(false);
+	}
 }
 
 void CommandCollector::tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk(void)
@@ -49,6 +54,8 @@ void CommandCollector::notify(void)
 	for(auto l : listeners) {
 		l->update(currentBulk);
 	}
+
+	setListenersWereNotified(true);
 }
 
 bool CommandCollector::isThisOpenningCurlyBrace(String &command)
@@ -111,4 +118,19 @@ bool CommandCollector::isCurrentBulkEmpty(void)
 void CommandCollector::notify_ForciblyTerminateCollectionAndNotify(void)
 {
 	notify();
+}
+
+void CommandCollector::prepareCurrentBulkForNewCommands(void)
+{
+	currentBulk.clear();
+}
+
+void CommandCollector::setListenersWereNotified(bool v)
+{
+	listenersWereNotified = v;
+}
+
+bool CommandCollector::wereListenersNotified(void)
+{
+	return listenersWereNotified;
 }

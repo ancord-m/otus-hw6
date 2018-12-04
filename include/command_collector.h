@@ -8,10 +8,12 @@
 #include "ibulk_updater.h"
 
 class CommandCollector
-{
+{	
+	Bulk currentBulk;
 	int commandBlockSize;
 	
 	std::vector<iBulkUpdater *> listeners;
+	bool listenersWereNotified;
 	int braceCounter;
 	bool formingCurrentBulkDynamicly;
 
@@ -26,12 +28,16 @@ class CommandCollector
 	void notify_IfCommandBlockSizeIsReached(void);
 	bool isCurrentBulkEmpty(void);
 	void notify_ForciblyTerminateCollectionAndNotify(void);
+	void prepareCurrentBulkForNewCommands(void);
+	void setListenersWereNotified(bool);
+	bool wereListenersNotified(void);
 
 public:
 	CommandCollector(int bs) :
 		commandBlockSize(bs),
 		braceCounter(0),
-		formingCurrentBulkDynamicly(false)
+		formingCurrentBulkDynamicly(false),
+		listenersWereNotified(false)
 	{ 
 		currentBulk.reserve(100); 
 	};
@@ -42,7 +48,7 @@ public:
 	void tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk(void);
 	void subscribe(iBulkUpdater *listener);
 	void notify(void);
-	Bulk currentBulk;
+	
 };
 
 #endif
