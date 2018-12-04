@@ -6,8 +6,9 @@
 #include "aliases.h"
 #include "ibulk_updater.h"
 #include "command_collector.h"
+#include "resulting_bulk_formatter.h"
 
-class ConsolePrinter : public iBulkUpdater
+class ConsolePrinter : public iBulkUpdater, public ResultingBulkFormatter
 {
 	public:
 		ConsolePrinter(CommandCollector *cc);

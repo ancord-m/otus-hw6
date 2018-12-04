@@ -6,11 +6,21 @@
 
 int main(int argc, char const *argv[])
 {
-	CommandCollector commandCollector(3);
-	ConsolePrinter consolePrinter(&commandCollector);
-	BulkToFileWriter bulkFileWriter(&commandCollector);
+	int bulkCapacity = 3;
+
+	if(argc == 2)
+	{
+		bulkCapacity = std::atoi(argv[1]);
+	}
+
+	auto commandCollector = std::make_shared<CommandCollector>
+
+	CommandCollector commandCollector(bulkCapacity);
+	ConsolePrinter consolePrinter(commandCollector);
+	BulkToFileWriter bulkFileWriter(commandCollector);
 	
-	for(std::string line; std::getline(std::cin, line); ) {
+	for(std::string line; std::getline(std::cin, line); ) 
+	{
 		commandCollector.captureCommandAndPerformAnalysis(line);	
 	}
 
