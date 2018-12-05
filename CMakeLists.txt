@@ -43,3 +43,26 @@ target_link_libraries(bulk_tests
 )
 
 enable_testing()
+
+install(TARGETS bulk RUNTIME DESTINATION bin)
+
+set(CPACK_GENERATOR DEB)
+
+set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+
+set(CPACK_PACKAGE_CONTACT leon8005@gmail.com)
+
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+include(CPack)
+
+add_test(BlockCreated_WhenCommandQuantityEquals_N 								bulk_tests)
+add_test(N_commandsCaptured_N_plus_one_was_ignored 								bulk_tests)
+add_test(BlockNotCreated_CommandQuantityLessThan_N 								bulk_tests)
+add_test(CommandsInsideCurlyBraces_N_limitIgnored 								bulk_tests)
+add_test(CommandsSurroundedBySeveralPairsOfCurlyBraces_OnlyFirstAndLastMatters 	bulk_tests)
+add_test(CommandsFinishedBeforeLastClosingCurlyBrace_BulkIsEmpty 				bulk_tests)
+add_test(CommandsFinishedBeforeClosingCurlyBrace_BulkIsEmpty 					bulk_tests)
+add_test(PreviousBulkWasFinishedForcibly_AtFirstOpeningCurlyBrace 			   	bulk_tests)
