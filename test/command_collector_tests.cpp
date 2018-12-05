@@ -52,10 +52,7 @@ class TestHelper
 
 		void compareExpectedAndActualBulks(const Bulk &actualBulk)
 		{
-			BOOST_CHECK( 
-				true == std::equal(expectedBulk.begin(), expectedBulk.end(),
-				    			   actualBulk.begin(), actualBulk.end())
-			);
+			BOOST_CHECK(expectedBulk == actualBulk);
 		}
 
 		void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
