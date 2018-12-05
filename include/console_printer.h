@@ -2,6 +2,7 @@
 #define CONSOLE_PRINTER_H
 
 #include <iostream>
+#include <memory>
 
 #include "aliases.h"
 #include "ibulk_updater.h"
@@ -11,7 +12,7 @@
 class ConsolePrinter : public iBulkUpdater, public ResultingBulkFormatter
 {
 	public:
-		ConsolePrinter(CommandCollector *cc);
+		ConsolePrinter(std::shared_ptr<CommandCollector>);
 
 	   ~ConsolePrinter() = default;	
 

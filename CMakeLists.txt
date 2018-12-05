@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(ENV{TRAVIS_BUILD_NUMBER} 1)
-
 project(bulk VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
 set(INCLUDE_DIR include)

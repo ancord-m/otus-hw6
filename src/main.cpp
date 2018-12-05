@@ -1,4 +1,5 @@
 #include <iostream>
+#include <typeinfo>
 
 #include "command_collector.h"
 #include "console_printer.h"
@@ -13,18 +14,17 @@ int main(int argc, char const *argv[])
 		bulkCapacity = std::atoi(argv[1]);
 	}
 
-	auto commandCollector = std::make_shared<CommandCollector>
+	auto commandCollector = std::make_shared<CommandCollector>(bulkCapacity);
 
-	CommandCollector commandCollector(bulkCapacity);
 	ConsolePrinter consolePrinter(commandCollector);
 	BulkToFileWriter bulkFileWriter(commandCollector);
 	
 	for(std::string line; std::getline(std::cin, line); ) 
 	{
-		commandCollector.captureCommandAndPerformAnalysis(line);	
+		commandCollector->captureCommandAndPerformAnalysis(line);	
 	}
 
-	commandCollector.tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk();
+	commandCollector->tryToNotifyListenersWithLeftFinishedOrUnfinishedCurrentBulk();
 
 	return 0;	
 }

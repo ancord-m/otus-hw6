@@ -1,6 +1,6 @@
 #include "console_printer.h"
 
-ConsolePrinter::ConsolePrinter(CommandCollector *cc)
+ConsolePrinter::ConsolePrinter(std::shared_ptr<CommandCollector> cc)
 {
 	cc->subscribe(this);
 }
