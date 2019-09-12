@@ -15,44 +15,38 @@ public:
 		cc->subscribe(this);
 	}
 
-	void update(const Bulk &receivedBulk) override
+	void update(const Bulk& receivedBulk) override
 	{
 		actualBulk.clear();
-		std::copy(receivedBulk.cbegin(), receivedBulk.cend(), std::back_inserter(actualBulk));
+	//	std::copy(receivedBulk.get()->cbegin(), receivedBulk.get()->cend(), std::back_inserter(actualBulk.get()));
 	}	
 };
 
 class TestHelper
 {
 	bool wasExpectedBulkCleared;
-
 	bool wasCommandSequenceCleared;
 	
 	public:
-
 		TestHelper()
 		{
 			wasExpectedBulkCleared    = true;
 			wasCommandSequenceCleared = true;			
 		}
 
-	   ~TestHelper()
-	    {
-
-	    }	
+	   ~TestHelper() = default;	
 
 		Bulk expectedBulk;
-
 		Bulk commandSequence;
 
-		void mustActualBulkBeEmpty(bool value, const Bulk &actualBulk)
+		void mustActualBulkBeEmpty(bool value, const Bulk& actualBulk)
 		{
-			BOOST_CHECK(value == actualBulk.empty());
+		//	BOOST_CHECK(value == actualBulk.get()->empty());
 		}
 
-		void compareExpectedAndActualBulks(const Bulk &actualBulk)
+		void compareExpectedAndActualBulks(const Bulk& actualBulk)
 		{
-			BOOST_CHECK(expectedBulk == actualBulk);
+//			BOOST_CHECK(expectedBulk.get() == actualBulk.get());
 		}
 
 		void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
@@ -66,7 +60,7 @@ class TestHelper
 				wasCommandSequenceCleared = true;
 			}
 
-			commandSequence.push_back(command);
+			commandSequence.get()->push_back(command);
 			prepareCommandSequenceToBeSent(args...);
 		}
 
@@ -81,13 +75,13 @@ class TestHelper
 				wasExpectedBulkCleared = true;
 			}
 
-			expectedBulk.push_back(command);
+			expectedBulk.get()->push_back(command);
 			prepareExpectedCommandsToBeCapturedIntoBulk(args...);
 		}
 
-		void performCommandCaptureBy(CommandCollector &commandCollector)
+		void performCommandCaptureBy(CommandCollector& commandCollector)
 		{
-			for(auto cmd : commandSequence)
+			for(auto cmd : commandSequence.get())
 			{
 				commandCollector.captureCommandAndPerformAnalysis(cmd);
 			}

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <memory>
 
-#include "aliases.h"
 #include "ibulk_updater.h"
 #include "command_collector.h"
 #include "resulting_bulk_formatter.h"

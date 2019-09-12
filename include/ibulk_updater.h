@@ -1,11 +1,11 @@
 #ifndef IBULK_UPDATER_H
 #define IBULK_UPDATER_H
 
-#include "aliases.h"
+#include "bulk.h"
 
 class iBulkUpdater {
 public:
-	virtual void update(const Bulk &) = 0;
+	virtual void update(const Bulk&) = 0;
 	virtual ~iBulkUpdater() {};
 };
 

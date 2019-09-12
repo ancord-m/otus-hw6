@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 
-#include "aliases.h"
 #include "ibulk_updater.h"
 #include "command_collector.h"
 #include "resulting_bulk_formatter.h"
@@ -14,7 +13,7 @@ class BulkToFileWriter : public iBulkUpdater, public ResultingBulkFormatter
 	const std::string prefix    = "bulk";
 	const std::string extention = ".log";
 
-	String generateFileName(void);
+	std::string generateFileName(const Bulk& bulk);
 
 	public:
 		BulkToFileWriter(std::shared_ptr<CommandCollector>);

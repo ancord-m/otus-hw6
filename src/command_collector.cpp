@@ -58,19 +58,21 @@ void CommandCollector::notify(void)
 	setListenersWereNotified(true);
 }
 
-bool CommandCollector::isThisOpenningCurlyBrace(String &command)
+bool CommandCollector::isThisOpenningCurlyBrace(std::string& command)
 {
 	return ( 0 == command.compare("{") );
 }
 
-bool CommandCollector::isThisClosingCurlyBrace(String &command)
+bool CommandCollector::isThisClosingCurlyBrace(std::string& command)
 {
 	return ( 0 == command.compare("}") );
 }
 
-void CommandCollector::storeCommandIntoCurrentBulk(String command)
+void CommandCollector::storeCommandIntoCurrentBulk(std::string command)
 {
-	currentBulk.push_back(command);
+	if(!currentBulk.wasTimeStampUpdated()) currentBulk.updateTimeStamp();
+
+	currentBulk.get()->push_back(command);
 }
 
 void CommandCollector::openCurlyBrace(void)
@@ -104,7 +106,7 @@ void CommandCollector::notify_IfAllCurlyBracesAreClosed(void)
 
 void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 {
-	if(currentBulk.size() == commandBlockSize)
+	if(currentBulk.get()->size() == commandBlockSize)
 	{
 		notify();	
 	}
@@ -112,7 +114,7 @@ void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 
 bool CommandCollector::isCurrentBulkEmpty(void)
 {
-	return currentBulk.empty();
+	return currentBulk.get()->empty();
 }
 
 void CommandCollector::notify_ForciblyTerminateCollectionAndNotify(void)

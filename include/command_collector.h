@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "aliases.h"
 #include "ibulk_updater.h"
 
 class CommandCollector
@@ -17,9 +16,9 @@ class CommandCollector
 	int braceCounter;
 	bool formingCurrentBulkDynamicly;
 
-	bool isThisOpenningCurlyBrace(String &command);
-	bool isThisClosingCurlyBrace(String &command);
-	void storeCommandIntoCurrentBulk(String command);
+	bool isThisOpenningCurlyBrace(std::string& command);
+	bool isThisClosingCurlyBrace(std::string& command);
+	void storeCommandIntoCurrentBulk(std::string command);
 	void openCurlyBrace(void);
 	void closeCurlyBrace(void);
 	void bulkFormedDynamicly(bool);
@@ -38,9 +37,7 @@ public:
 		braceCounter(0),
 		formingCurrentBulkDynamicly(false),
 		listenersWereNotified(false)
-	{ 
-		currentBulk.reserve(100); 
-	};
+	{ };
 
    ~CommandCollector() = default;	
 
