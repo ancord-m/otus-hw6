@@ -9,6 +9,7 @@
 class TestListener : public iBulkUpdater {
 public:
 	Bulk actualBulk;
+	
 
 	TestListener(CommandCollector *cc)
 	{
@@ -17,8 +18,7 @@ public:
 
 	void update(const Bulk& receivedBulk) override
 	{
-		actualBulk.clear();
-	//	std::copy(receivedBulk.get()->cbegin(), receivedBulk.get()->cend(), std::back_inserter(actualBulk.get()));
+		actualBulk = receivedBulk;
 	}	
 };
 
@@ -41,12 +41,12 @@ class TestHelper
 
 		void mustActualBulkBeEmpty(bool value, const Bulk& actualBulk)
 		{
-		//	BOOST_CHECK(value == actualBulk.get()->empty());
+			BOOST_CHECK(value == actualBulk.isEmpty());
 		}
 
 		void compareExpectedAndActualBulks(const Bulk& actualBulk)
 		{
-//			BOOST_CHECK(expectedBulk.get() == actualBulk.get());
+			BOOST_CHECK(expectedBulk.get() == actualBulk.get());
 		}
 
 		void prepareCommandSequenceToBeSent() { wasCommandSequenceCleared = false; }
@@ -60,7 +60,7 @@ class TestHelper
 				wasCommandSequenceCleared = true;
 			}
 
-			commandSequence.get()->push_back(command);
+			commandSequence.push(command);
 			prepareCommandSequenceToBeSent(args...);
 		}
 
@@ -75,7 +75,7 @@ class TestHelper
 				wasExpectedBulkCleared = true;
 			}
 
-			expectedBulk.get()->push_back(command);
+			expectedBulk.push(command);
 			prepareExpectedCommandsToBeCapturedIntoBulk(args...);
 		}
 

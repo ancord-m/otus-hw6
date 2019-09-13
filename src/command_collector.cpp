@@ -72,7 +72,7 @@ void CommandCollector::storeCommandIntoCurrentBulk(std::string command)
 {
 	if(!currentBulk.wasTimeStampUpdated()) currentBulk.updateTimeStamp();
 
-	currentBulk.get()->push_back(command);
+	currentBulk.push(command);
 }
 
 void CommandCollector::openCurlyBrace(void)
@@ -106,7 +106,7 @@ void CommandCollector::notify_IfAllCurlyBracesAreClosed(void)
 
 void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 {
-	if(currentBulk.get()->size() == commandBlockSize)
+	if(currentBulk.get().size() == commandBlockSize)
 	{
 		notify();	
 	}
@@ -114,7 +114,7 @@ void CommandCollector::notify_IfCommandBlockSizeIsReached(void)
 
 bool CommandCollector::isCurrentBulkEmpty(void)
 {
-	return currentBulk.get()->empty();
+	return currentBulk.get().empty();
 }
 
 void CommandCollector::notify_ForciblyTerminateCollectionAndNotify(void)

@@ -13,7 +13,7 @@ class ResultingBulkFormatter
 		{
 			std::string result = "bulk: "; 
 
-		/*	for(auto b_it = bulk.get()->cbegin(); b_it != bulk.get().cend(); ++b_it)
+			for(auto b_it = bulk.cbegin_iterator(); b_it != bulk.cend_iterator(); ++b_it)
 			{
 				if(b_it != bulk.get().cbegin())
 				{
@@ -21,7 +21,7 @@ class ResultingBulkFormatter
 				}
 
 				result += *b_it;		
-			}*/
+			}
 
 			return result;
 		}

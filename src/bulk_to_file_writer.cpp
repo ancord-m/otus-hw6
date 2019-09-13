@@ -27,7 +27,10 @@ void BulkToFileWriter::update(const Bulk& receivedBulk)
 	output.close();
 }
 
-std::string BulkToFileWriter::generateFileName(const Bulk& bul)
+std::string BulkToFileWriter::generateFileName(const Bulk& bulk)
 {
-	return prefix + std::to_string(time(nullptr)) + extention;
+	std::time_t time_stamp 		= std::chrono::system_clock::to_time_t(bulk.getTimeStamp());
+	std::string time_stamp_str 	= std::to_string(time_stamp);
+	
+	return prefix + time_stamp_str + extention;
 }
